@@ -24,10 +24,8 @@ class RecipeSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'time_minutes', 'price', 'link', 'tags']
         read_only_fields = ['id']
 
-    def create(self, validated_data):
-        """ Create a recipe. """
-        tags = validated_data.pop('tags', [])
-        recipe = Recipe.objects.create(**validated_data)
+    def _get_or_create_tags(self, tags, recipe):
+        """ Handle getting or creating tags as needed. """
         auth_user = self.context['request'].user
 
         for tag in tags:
@@ -36,8 +34,6 @@ class RecipeSerializer(serializers.ModelSerializer):
                 **tag
             )
             recipe.tags.add(tag_obj)
-
-        return recipe
 
 class RecipeDetailSerializer(RecipeSerializer):
     """ Serializer for recipe detail view. """
